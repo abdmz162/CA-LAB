@@ -13,12 +13,12 @@ module reg_file
 (
     input  logic                   clk,
     input  logic                   reg_write, // Write Enable
-    input  logic [ADDR_WIDTH-1:0]  a1,        // Read Address 1 (rs1)
-    input  logic [ADDR_WIDTH-1:0]  a2,        // Read Address 2 (rs2)
-    input  logic [ADDR_WIDTH-1:0]  a3,        // Write Address (rd)
-    input  logic [DATA_WIDTH-1:0]  wd3,       // Write Data
-    output logic [DATA_WIDTH-1:0]  rd1,       // Read Data 1
-    output logic [DATA_WIDTH-1:0]  rd2        // Read Data 2
+    input  logic [ADDR_WIDTH-1:0]  r_addr1,        // Read Address 1 (rs1)
+    input  logic [ADDR_WIDTH-1:0]  r_addr2,        // Read Address 2 (rs2)
+    input  logic [ADDR_WIDTH-1:0]  w_addr,        // Write Address (rd)
+    input  logic [DATA_WIDTH-1:0]  w_data,       // Write Data
+    output logic [DATA_WIDTH-1:0]  r_data1,       // Read Data 1
+    output logic [DATA_WIDTH-1:0]  r_data2        // Read Data 2
 );
 
     // Array of 32 registers, each 32 bits wide
@@ -28,15 +28,15 @@ module reg_file
      * Note: Register x0 cannot be overwritten.
      */
     always_ff @(posedge clk) begin
-        if (reg_write && (a3 != 5'b00000)) begin
-            Registers[a3] <= wd3;
+        if (reg_write && (w_addr != 5'b00000)) begin
+            Registers[w_addr] <= w_data;
         end
     end
 
     /* * Asynchronous Read 
      * Register x0 always returns 0.
      */
-    assign rd1 = (a1 != 5'b00000) ? Registers[a1] : {DATA_WIDTH{1'b0}};
-    assign rd2 = (a2 != 5'b00000) ? Registers[a2] : {DATA_WIDTH{1'b0}};
+    assign r_data1 = (r_addr1 != 5'b00000) ? Registers[r_addr1] : {DATA_WIDTH{1'b0}};
+    assign r_data2 = (r_addr2 != 5'b00000) ? Registers[r_addr2] : {DATA_WIDTH{1'b0}};
 
 endmodule
