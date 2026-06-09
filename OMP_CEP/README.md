@@ -66,6 +66,7 @@ sudo apt install build-essential
 │   ├── test_driver.c
 │   └── tests.h
 ├── README.md
+├── .gitignore
 └── src
     ├── compute.h
     ├── compute_naive.c
