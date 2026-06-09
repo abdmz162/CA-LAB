@@ -47,7 +47,14 @@ Because of this dependency, the project must be executed on a Linux-based enviro
 * OpenMP support (`-fopenmp`)
 * Make
 
-Example installation on Ubuntu:
+### System Used for Testing
+
+All benchmarks and results in this project were obtained on the following system:
+```
+CPU: Intel i5-10310U (8) @ 4.400GHz
+```
+
+### Example installation on Ubuntu:
 
 ```bash
 sudo apt update

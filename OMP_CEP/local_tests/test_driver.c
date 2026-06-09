@@ -1,12 +1,50 @@
 #include "../src/compute.h"
 #include "tests.h"
 
+/*
+
+Function: now_sec()
+Purpose  : Returns current time in seconds with high precision
+           using a monotonic clock.
+
+Why MONOTONIC?
+- CLOCK_MONOTONIC ensures time is always increasing
+- It is NOT affected by system clock changes (NTP, manual change)
+- Perfect for benchmarking execution time
+
+Return:
+- double value representing time in seconds (including nanoseconds)
+
+*/
 
 double now_sec() {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
+    // Convert seconds + nanoseconds into a single floating-point value
     return ts.tv_sec + ts.tv_nsec * 1e-9;
 }
+
+/*
+
+Function: run_test()
+
+Purpose:
+- Runs a single convolution test case
+- Compares computed output with expected output
+- Prints PASS/FAIL result
+- Frees all dynamically allocated memory
+
+Parameters:
+- name     : Name of the test case (for printing result)
+- A        : Input matrix (image / signal)
+- B        : Kernel matrix (filter)
+- Expected : Expected output matrix (ground truth)
+
+Key Idea:
+- convolve(A, B, &out) computes convolution result
+- equal(out, Expected) checks correctness
+
+*/
 
 void run_test(
     char *name,
@@ -15,7 +53,15 @@ void run_test(
     matrix_t *Expected
 )
 {
-    matrix_t *out=NULL;
+    matrix_t *out=NULL;  // output matrix will be created by convolve()
+
+     /*
+    -------------------------------------------------------
+    Perform convolution operation
+    - result == 0 → success
+    - result != 0 → error in computation or invalid input
+    -------------------------------------------------------
+    */
 
     int result=
         convolve(A,B,&out);
@@ -26,10 +72,26 @@ void run_test(
         return;
     }
 
+    /*
+    -------------------------------------------------------
+    Compare computed output with expected output
+    - equal() checks element-wise equality
+    -------------------------------------------------------
+    */
+
     if(equal(out,Expected))
         printf("%s PASSED\n",name);
     else
         printf("%s FAILED\n",name);
+
+     /*
+    -------------------------------------------------------
+    Memory management:
+    All matrices are dynamically allocated using make_matrix().
+    Therefore we MUST free them to avoid memory leaks.
+    -------------------------------------------------------
+    */
+
 
     free_matrix(A);
     free_matrix(B);
@@ -38,10 +100,28 @@ void run_test(
 }
 
 
+/*
+
+MAIN FUNCTION - TEST SUITE DRIVER
+
+
+This function runs multiple test cases for convolution:
+- Small examples (manual verification)
+- Edge cases (negative values, 1x1 kernel)
+- Medium and large matrices
+
+Also measures total execution time of all tests.
+
+*/
+
 int main()
 {
-    double start = now_sec();
-    // Test 1
+    double start = now_sec(); // start timer for full test suite
+    
+    // =====================================================
+    // TEST 1: Basic 3x3 image with 2x2 kernel
+    // Purpose: sanity check for normal convolution
+    // =====================================================
 
     int a1[]={
         1,2,3,
@@ -49,7 +129,7 @@ int main()
         7,8,9
     };
 
-    int b1[]={
+    int b1[]={  // it(kernel) will be flipped 
         1,2,
         3,4
     };
@@ -67,8 +147,10 @@ int main()
     );
 
 
-    // Test 2
-
+    // =====================================================
+    // TEST 2: 1x1 kernel
+    // Purpose: kernel is scalar → output should scale input
+    // =====================================================
     int a2[]={
         1,2,
         3,4
@@ -89,8 +171,10 @@ int main()
     );
 
 
-    // Test 3
-
+    // =====================================================
+    // TEST 3: Negative values
+    // Purpose: ensures convolution handles negatives correctly
+    // =====================================================
     int a3[]={
         1,-2,
         3,-4
@@ -112,8 +196,10 @@ int main()
 
     // ---------- test_tiny ----------
 
-    // same-size kernel
-
+    // =====================================================
+    // TEST 4: Same-size kernel and input
+    // Purpose: output becomes single value (full overlap)
+    // =====================================================
     int a4[]={
         1,2,
         3,4
@@ -134,7 +220,11 @@ int main()
     );
 
 
-    // rectangular
+
+    // =====================================================
+    // TEST 5: Rectangular input matrix
+    // Purpose: non-square image convolution test
+    // =====================================================
     int a5[] = {
         1,2,3,4,
         5,6,7,8
@@ -159,8 +249,10 @@ int main()
 
     // ---------- test_small ----------
 
-    // 5x5 with 3x3 kernel
-
+    // =====================================================
+    // TEST 6: Small 5x5 with 3x3 kernel
+    // Purpose: standard mid-size convolution test
+    // =====================================================
     int a6[]={
         1,2,3,4,5,
         6,7,8,9,10,
@@ -189,8 +281,10 @@ int main()
     );
 
 
-    // negatives
-
+    // =====================================================
+    // TEST 7: Negative matrix values
+    // Purpose: mixed sign robustness test
+    // =====================================================
     int a7[]={
         -1,-2,-3,
         4, 5, 6,
@@ -217,7 +311,10 @@ int main()
 
 
         // ---------- test_large ----------
-
+    // =====================================================
+    // TEST 8: Large 10x10 matrix
+    // Purpose: stress test for correctness + performance
+    // =====================================================
     int a_large[] = {
         1,2,3,4,5,6,7,8,9,10,
         11,12,13,14,15,16,17,18,19,20,
@@ -254,6 +351,12 @@ int main()
         make_matrix(8, 8, e_large)
     );
 
+    /*
+    =====================================================
+    END TIMER
+    - Measures total execution time of full test suite
+    =====================================================
+    */
     double end = now_sec();
     printf("Time: %f seconds\n", end - start);
     return 0;
