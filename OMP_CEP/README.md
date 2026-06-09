@@ -172,7 +172,7 @@ bench_test.c
 #### Output
 
 <p align="center">
-  <img src="docs/output_bench_naive.png" width="850">
+  <img src="docs/output_bench_naive.png" width="600">
 </p>
 
 ---
@@ -194,7 +194,7 @@ bench_test.c
 #### Output
 
 <p align="center">
-  <img src="docs/output_bench_optimized.png" width="850">
+  <img src="docs/output_bench_optimized.png" width="600">
 </p>
 
 ---
