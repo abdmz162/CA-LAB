@@ -7,10 +7,12 @@
 
 #include "io.h"
 
-// Executes a task
-int execute_task(task_t *task);
-
-// Computes convolution
+/**
+ * Computes the 2D convolution of a_matrix (input) with b_matrix (kernel).
+ * The kernel is flipped both horizontally and vertically (standard convolution).
+ * Output matrix is allocated inside and returned via output_matrix.
+ * Returns 0 on success, -1 on error.
+ */
 int convolve(matrix_t *a_matrix,
              matrix_t *b_matrix,
              matrix_t **output_matrix);

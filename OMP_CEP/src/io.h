@@ -2,13 +2,13 @@
 #define IO_H
 
 #include <stdint.h>
-
+//used in all the files
 typedef struct {
   uint32_t rows;
   uint32_t cols;
   int32_t *data;
 } matrix_t;
-
+//not used; just kept for safety precautions
 typedef struct {
   char *path;
 } task_t;
